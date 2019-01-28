@@ -42,7 +42,7 @@
         使用 top / distinct 关键字，减少重复行
 
     
-    慎用 distinct 
+    -1）慎用 distinct 
     查询字段少时使用，字段过多，大大降低查询效率
     如：
     select distinct * from
@@ -56,19 +56,32 @@
     使用 distinct 执行时间更长
 
 
-    慎用 union 关键字
+    -2）慎用 union 关键字
     union 把多个查询语句结果集合到一个结果集中返回
     union语句必须满足：1.列数相同 2.对应列数的数据类型要保持兼容
-    union all 不排序过滤的关键字
+    union all 代替union 不排序过滤的关键字
 
 
-    判断表中是否存在数据
+    -3）判断表中是否存在数据
     select count(*) from product
     或
     select top(1) id from product   效率更快
 
+    -4）使用exist 代替 in 
+    select * from A where idin (select id from B)
+    改为
+    select * from A where id exist(selct 1 from A.id=B.id)
 
-    连接查询优化
+
+    -5）where
+    where子句使用 ！= 或 <> 操作符优化，索引将被放弃使用，会进行全表查询
+    select id from A where id !=5;
+    优化
+    select id from A where id>5 or id<5;
+
+
+
+    -6）连接查询优化
     inner join 结果集大小取决于左右两表满足条件的数量
     left join  左表大小，right join 相反
     完全和交叉连接 取决左右两表数据总量
@@ -89,6 +102,11 @@
 
 
 3-2）insert 语句
+    使用临时表暂存中间结果
+       避免程序中多次扫描主表, 减少了阻塞，提高了并发性能
+       避免频繁创建和删除临时表，以减少系统资源的浪费
+       尽量避免向客户端返回大数据量
+
     创建临时表1
     create table #tb1
     (
@@ -136,7 +154,10 @@
     drop table #tb2
     select count(1) from #tb2
 
+
     注：insert into select批量插入，明显提升效率，尽量避免一个个循环插入
+
+
 
 
 3-3）优化修改删除语句
@@ -148,10 +169,30 @@
     .....
 
 
+
+4. limit 分页优化
+    SELECT id FROM A LIMIT 1000,10      很快
+    SELECT id FROM A LIMIT 10000,10     很慢
+    优化
+    select id from A order by id limit 10000,10;
+    或
+    select id from A order by between 10000 and 100010;
+
+
+
+5. 批量插入优化
+    INSERT into person(name,age) values('A',11)
+    INSERT into person(name,age) values('B',12)
+    INSERT into person(name,age) values('C',18)
+    优化
+    INSERT into person(name,age) value('A',11),('B',12),('C',18);
+
+
+
+
+
+
     总结：优化最重要的是在于平时设计语句，数据库的习惯，方式
-
-
-
 
 
 
