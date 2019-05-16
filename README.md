@@ -158,8 +158,6 @@
     注：insert into select批量插入，明显提升效率，尽量避免一个个循环插入
 
 
-
-
 3-3）优化修改删除语句
     如果同时修改或删除过多数据，会造成cpu利用率过高从而影响别人对数据库的访问
     分批操作数据
@@ -169,7 +167,6 @@
     .....
 
 
-
 4. limit 分页优化
     SELECT id FROM A LIMIT 1000,10      很快
     SELECT id FROM A LIMIT 10000,10     很慢
@@ -177,7 +174,6 @@
     select id from A order by id limit 10000,10;
     或
     select id from A order by between 10000 and 100010;
-
 
 
 5. 批量插入优化
@@ -190,9 +186,5 @@
 
 
 
-
-
     总结：优化最重要的是在于平时设计语句，数据库的习惯，方式
-
-
 
